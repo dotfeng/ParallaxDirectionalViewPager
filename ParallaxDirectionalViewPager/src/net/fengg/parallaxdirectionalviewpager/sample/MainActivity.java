@@ -28,7 +28,7 @@ public class MainActivity extends FragmentActivity implements
 	private ImageView mBg;
 	
 	//DirectionalViewPager.VERTICAL or DirectionalViewPager.HORIZONTAL
-	private final static int DIRECTION = DirectionalViewPager.HORIZONTAL;
+	private final static int DIRECTION = DirectionalViewPager.VERTICAL;
 	private final static float SCALE = 1.2f;
 	private final static float OVER_PERCENTAGE = 3;
 	
@@ -78,7 +78,7 @@ public class MainActivity extends FragmentActivity implements
 		linearLayoutIndicator.setOrientation(DIRECTION);
 		if(DIRECTION == DirectionalViewPager.HORIZONTAL) {
 			linearLayoutIndicator.setPadding(
-					dp2px(this, getScreenWidth()/8), 0, 0, dp2px(this, 10));
+					getPaddingLeft(), 0, 0, dp2px(this, 10));
 			linearLayoutIndicator.setGravity(Gravity.BOTTOM);
 		}else {
 			linearLayoutIndicator.setPadding(dp2px(this, 10), 0, 0, 0);
@@ -87,7 +87,7 @@ public class MainActivity extends FragmentActivity implements
 		
 		for (int i = 0; i < 4; i++) {
 			ImageView iv = new ImageView(this);
-			iv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 
+			iv.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, 
 					LinearLayout.LayoutParams.WRAP_CONTENT));
 			if(DIRECTION == DirectionalViewPager.HORIZONTAL) {
 				iv.setPadding(dp2px(this, 15), 0, 0, 0);
@@ -104,6 +104,10 @@ public class MainActivity extends FragmentActivity implements
 			imageViewIndicatorList.add(iv);
 			linearLayoutIndicator.addView(iv);
 		}
+	}
+	
+	public int getPaddingLeft() {
+		return getScreenWidth()/2 - dp2px(this,48);//48=15+5+15+5+15/2
 	}
 	
 	@Override
