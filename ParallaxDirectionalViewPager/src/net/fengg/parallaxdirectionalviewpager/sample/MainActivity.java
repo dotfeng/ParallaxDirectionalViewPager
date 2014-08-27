@@ -6,11 +6,14 @@ import java.util.List;
 import net.fengg.parallaxdirectionalviewpager.DirectionalViewPager;
 import net.fengg.parallaxdirectionalviewpager.R;
 import net.fengg.parallaxdirectionalviewpager.DirectionalViewPager.OnPageChangeListener;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -24,52 +27,23 @@ public class MainActivity extends FragmentActivity implements
 	private int mCurrentItem;
 	private ImageView mBg;
 	
-	//or DirectionalViewPager.HORIZONTAL
-	private final static int DIRECTION = DirectionalViewPager.VERTICAL;
+	//DirectionalViewPager.VERTICAL or DirectionalViewPager.HORIZONTAL
+	private final static int DIRECTION = DirectionalViewPager.HORIZONTAL;
 	private final static float SCALE = 1.2f;
 	private final static float OVER_PERCENTAGE = 3;
 	
 	private List<ImageView> imageViewIndicatorList = null;
 	private LinearLayout linearLayoutIndicator;
 	
-	private void initIndicator() {
-		imageViewIndicatorList = new ArrayList<ImageView>();
-		for (int i = 0; i < 4; i++) {
-			ImageView iv = new ImageView(this);
-			iv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 
-					LinearLayout.LayoutParams.WRAP_CONTENT));
-			iv.setPadding(0, 15, 0, 0);
-			if (i == 0) {
-				// 默认选中第一张图片
-				iv.setImageResource(R.drawable.shape_sel);
-			} else {
-				iv.setImageResource(R.drawable.shape_nor);
-			}
-			imageViewIndicatorList.add(iv);
-			linearLayoutIndicator.addView(iv);
-		}
-	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		// Set up the pager
-		mDirectionalViewPager = (DirectionalViewPager) findViewById(R.id.pager);
-		linearLayoutIndicator = (LinearLayout) findViewById(R.id.indicator_ll);
-		mBg = (ImageView) findViewById(R.id.mainBgImage);
-		if(DIRECTION == DirectionalViewPager.HORIZONTAL) {	
-			mBg.setScaleX(SCALE);
-		}else {
-			mBg.setScaleY(SCALE);
-		}
+		initView();
 		
-		mDirectionalViewPager.setAdapter(new TestFragmentAdapter(
-				getSupportFragmentManager()));
-		mDirectionalViewPager.setOrientation(DIRECTION);// 设置方向垂直即可。
-		mDirectionalViewPager.setOnPageChangeListener(this);
 		initIndicator();
-		
-		
+
 		int screenHeight = getScreenHeigh();
 		int screenWidth = getScreenWidth();
 		if(DIRECTION == DirectionalViewPager.HORIZONTAL) {
@@ -82,22 +56,63 @@ public class MainActivity extends FragmentActivity implements
 		mCurrentItem = 0;
 	}
 
+	public void initView() {
+		mDirectionalViewPager = (DirectionalViewPager) findViewById(R.id.pager);
+		linearLayoutIndicator = (LinearLayout) findViewById(R.id.indicator_ll);
+		mBg = (ImageView) findViewById(R.id.mainBgImage);
+		
+		if(DIRECTION == DirectionalViewPager.HORIZONTAL) {
+			mBg.setScaleX(SCALE);
+		}else {
+			mBg.setScaleY(SCALE);
+		}
+		mDirectionalViewPager.setAdapter(new TestFragmentAdapter(
+				getSupportFragmentManager()));
+		mDirectionalViewPager.setOrientation(DIRECTION);// 设置方向垂直即可。
+		mDirectionalViewPager.setOnPageChangeListener(this);
+	}
+	
+	private void initIndicator() {
+		imageViewIndicatorList = new ArrayList<ImageView>();
+		
+		linearLayoutIndicator.setOrientation(DIRECTION);
+		if(DIRECTION == DirectionalViewPager.HORIZONTAL) {
+			linearLayoutIndicator.setPadding(
+					dp2px(this, getScreenWidth()/8), 0, 0, dp2px(this, 10));
+			linearLayoutIndicator.setGravity(Gravity.BOTTOM);
+		}else {
+			linearLayoutIndicator.setPadding(dp2px(this, 10), 0, 0, 0);
+			linearLayoutIndicator.setGravity(Gravity.CENTER);
+		}
+		
+		for (int i = 0; i < 4; i++) {
+			ImageView iv = new ImageView(this);
+			iv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 
+					LinearLayout.LayoutParams.WRAP_CONTENT));
+			if(DIRECTION == DirectionalViewPager.HORIZONTAL) {
+				iv.setPadding(dp2px(this, 15), 0, 0, 0);
+			}else {
+				iv.setPadding(0, dp2px(this, 10), 0, 0);
+			}
+			
+			if (i == 0) {
+				// 默认选中第一张图片
+				iv.setImageResource(R.drawable.shape_sel);
+			} else {
+				iv.setImageResource(R.drawable.shape_nor);
+			}
+			imageViewIndicatorList.add(iv);
+			linearLayoutIndicator.addView(iv);
+		}
+	}
+	
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		//super.onSaveInstanceState(outState);
 	}
-	public int getScreenHeigh() {
-		DisplayMetrics dm = getResources().getDisplayMetrics();
-		return dm.heightPixels;
-	}
-	public int getScreenWidth() {
-		DisplayMetrics dm = getResources().getDisplayMetrics();
-		return dm.widthPixels;
-	}
+	
 	@Override
 	public void onPageScrollStateChanged(int state) {
-		Log.i("way", "onPageScrollStateChanged...  state = " + state
-				+ ",  mCurrentItem = " + mCurrentItem);
 		if (state == ViewPager.SCROLL_STATE_IDLE) {
 			if(DIRECTION == DirectionalViewPager.HORIZONTAL) {	
 				mBg.setX(-mCurrentItem * mSize);
@@ -110,9 +125,6 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	public void onPageScrolled(int position, float positionOffset,
 			int positionOffsetPixels) {
-		Log.i("way", "onPageScrolled...  position=" + position
-				+ ", positionOffset=" + positionOffset
-				+ ", positionOffsetPixels=" + positionOffsetPixels);
 		if (positionOffset == 0.0f)
 			return;
 		if(DIRECTION == DirectionalViewPager.HORIZONTAL) {			
@@ -124,7 +136,6 @@ public class MainActivity extends FragmentActivity implements
 
 	@Override
 	public void onPageSelected(int position) {
-		Log.i("way", "onPageSelected....  position=" + position);
 		mCurrentItem = position;
 		
 		for (int i = 0; i < imageViewIndicatorList.size(); i++) {
@@ -138,4 +149,22 @@ public class MainActivity extends FragmentActivity implements
 		}
 		
 	}
+	
+	public int getScreenHeigh() {
+		DisplayMetrics dm = getResources().getDisplayMetrics();
+		return dm.heightPixels;
+	}
+	
+	public int getScreenWidth() {
+		DisplayMetrics dm = getResources().getDisplayMetrics();
+		return dm.widthPixels;
+	}
+	
+	public static int dp2px(Context paramContext, float paramFloat) {
+		DisplayMetrics localDisplayMetrics = paramContext.getResources()
+				.getDisplayMetrics();
+		return (int) TypedValue.applyDimension(1, paramFloat,
+				localDisplayMetrics);
+	}
+	
 }
