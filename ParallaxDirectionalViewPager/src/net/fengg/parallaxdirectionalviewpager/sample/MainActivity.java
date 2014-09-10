@@ -59,12 +59,8 @@ public class MainActivity extends FragmentActivity implements
 		mDirectionalViewPager = (DirectionalViewPager) findViewById(R.id.pager);
 		linearLayoutIndicator = (LinearLayout) findViewById(R.id.indicator_ll);
 		mBg = (ImageView) findViewById(R.id.mainBgImage);
-		
-		if(DIRECTION == DirectionalViewPager.HORIZONTAL) {
-			mBg.setScaleX(SCALE);
-		}else {
-			mBg.setScaleY(SCALE);
-		}
+		mBg.setScaleX(SCALE);
+		mBg.setScaleY(SCALE);
 		mDirectionalViewPager.setAdapter(new TestFragmentAdapter(
 				getSupportFragmentManager()));
 		mDirectionalViewPager.setOrientation(DIRECTION);// 设置方向垂直即可。
